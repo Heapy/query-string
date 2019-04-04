@@ -1,3 +1,105 @@
+export namespace _decodeURIComponent {
+    const token = '%[a-f0-9]{2}';
+    const singleMatcher = new RegExp(token, "gi");
+    const multiMatcher = new RegExp('(' + token + ')+', 'gi');
+
+    function decodeComponents(components: string[], split: number): string | string[] {
+        try {
+            // Try to decode the entire string first
+            return decodeURIComponent(components.join(''));
+        } catch (err) {
+            // Do nothing
+        }
+
+        if (components.length === 1) {
+            return components;
+        }
+
+        split = split || 1;
+
+        // Split the array in 2 parts
+        const left = components.slice(0, split);
+        const right = components.slice(split);
+
+        return Array.prototype.concat.call([], decodeComponents(left, 1), decodeComponents(right, 1));
+    }
+
+    function decode(input: string): string {
+        try {
+            return decodeURIComponent(input);
+        } catch (err) {
+            let tokens = input.match(singleMatcher);
+
+            // TODO
+            // @ts-ignore
+            for (var i = 1; i < tokens.length; i++) {
+                // @ts-ignore
+                input = decodeComponents(tokens, i).join('');
+
+                tokens = input.match(singleMatcher);
+            }
+
+            return input;
+        }
+    }
+
+    function customDecodeURIComponent(input: string): string {
+        // Keep track of all the replacements and prefill the map with the `BOM`
+        const replaceMap: { [key: string]: string } = {
+            "%FE%FF": "\uFFFD\uFFFD",
+            "%FF%FE": "\uFFFD\uFFFD"
+        };
+
+        let match = multiMatcher.exec(input);
+        while (match) {
+            try {
+                // Decode as big chunks as possible
+                replaceMap[match[0]] = decodeURIComponent(match[0]);
+            } catch (err) {
+                const result = decode(match[0]);
+
+                if (result !== match[0]) {
+                    replaceMap[match[0]] = result;
+                }
+            }
+
+            match = multiMatcher.exec(input);
+        }
+
+        // Add `%C2` at the end of the map to make sure it does not replace the combinator before everything else
+        replaceMap["%C2"] = "\uFFFD";
+
+        Object.keys(replaceMap).forEach((key: string) => {
+            // Replace all decoded components
+            input = input.replace(new RegExp(key, "g"), replaceMap[key]);
+        });
+
+        return input;
+    }
+
+    /**
+     * A better [decodeURIComponent](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent)
+     *
+     * ### Why?
+     *
+     * - Decodes `+` to a space.
+     * - Converts the [BOM](https://en.wikipedia.org/wiki/Byte_order_mark) to a [replacement character](https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character) `�`.
+     * - Does not throw with invalid encoded input.
+     * - Decodes as much of the string as possible.
+     */
+    export function decodeComponent(encodedURI: string) {
+        try {
+            encodedURI = encodedURI.replace(/\+/g, " ");
+
+            // Try the built in decoder first
+            return decodeURIComponent(encodedURI);
+        } catch (err) {
+            // Fallback to a more advanced decoder
+            return customDecodeURIComponent(encodedURI);
+        }
+    }
+}
+
 const decodeComponent = _decodeURIComponent.decodeComponent;
 
 type ArrayEncoder = (key: string) => (result: [], value: string, index: number) => string[];
@@ -298,108 +400,6 @@ export function splitOnFirst(string: string, separator: string): string[] {
         string.slice(0, separatorIndex),
         string.slice(separatorIndex + separator.length)
     ];
-}
-
-export namespace _decodeURIComponent {
-    const token = '%[a-f0-9]{2}';
-    const singleMatcher = new RegExp(token, "gi");
-    const multiMatcher = new RegExp('(' + token + ')+', 'gi');
-
-    function decodeComponents(components: string[], split: number): string | string[] {
-        try {
-            // Try to decode the entire string first
-            return decodeURIComponent(components.join(''));
-        } catch (err) {
-            // Do nothing
-        }
-
-        if (components.length === 1) {
-            return components;
-        }
-
-        split = split || 1;
-
-        // Split the array in 2 parts
-        const left = components.slice(0, split);
-        const right = components.slice(split);
-
-        return Array.prototype.concat.call([], decodeComponents(left, 1), decodeComponents(right, 1));
-    }
-
-    function decode(input: string): string {
-        try {
-            return decodeURIComponent(input);
-        } catch (err) {
-            let tokens = input.match(singleMatcher);
-
-            // TODO
-            // @ts-ignore
-            for (var i = 1; i < tokens.length; i++) {
-                // @ts-ignore
-                input = decodeComponents(tokens, i).join('');
-
-                tokens = input.match(singleMatcher);
-            }
-
-            return input;
-        }
-    }
-
-    function customDecodeURIComponent(input: string): string {
-        // Keep track of all the replacements and prefill the map with the `BOM`
-        const replaceMap: { [key: string]: string } = {
-            "%FE%FF": "\uFFFD\uFFFD",
-            "%FF%FE": "\uFFFD\uFFFD"
-        };
-
-        let match = multiMatcher.exec(input);
-        while (match) {
-            try {
-                // Decode as big chunks as possible
-                replaceMap[match[0]] = decodeURIComponent(match[0]);
-            } catch (err) {
-                const result = decode(match[0]);
-
-                if (result !== match[0]) {
-                    replaceMap[match[0]] = result;
-                }
-            }
-
-            match = multiMatcher.exec(input);
-        }
-
-        // Add `%C2` at the end of the map to make sure it does not replace the combinator before everything else
-        replaceMap["%C2"] = "\uFFFD";
-
-        Object.keys(replaceMap).forEach((key: string) => {
-            // Replace all decoded components
-            input = input.replace(new RegExp(key, "g"), replaceMap[key]);
-        });
-
-        return input;
-    }
-
-    /**
-     * A better [decodeURIComponent](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent)
-     *
-     * ### Why?
-     *
-     * - Decodes `+` to a space.
-     * - Converts the [BOM](https://en.wikipedia.org/wiki/Byte_order_mark) to a [replacement character](https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character) `�`.
-     * - Does not throw with invalid encoded input.
-     * - Decodes as much of the string as possible.
-     */
-    export function decodeComponent(encodedURI: string) {
-        try {
-            encodedURI = encodedURI.replace(/\+/g, " ");
-
-            // Try the built in decoder first
-            return decodeURIComponent(encodedURI);
-        } catch (err) {
-            // Fallback to a more advanced decoder
-            return customDecodeURIComponent(encodedURI);
-        }
-    }
 }
 
 export interface ParseOptions {
