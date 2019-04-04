@@ -13,7 +13,7 @@
     "node": ">=6"
   },
   "scripts": {
-    "test": "tsc index.test.tsc && node index.test.js"
+    "test": "tsc index.test.ts && node index.test.js"
   },
   "files": [
     "index.ts"
