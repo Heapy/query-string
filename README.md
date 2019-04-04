@@ -1,4 +1,4 @@
-# query-string [![Build Status](https://travis-ci.org/Heapy/query-string.svg?branch=master)](https://travis-ci.org/Heapy/query-string)
+# query-string [![Build Status](https://travis-ci.com/Heapy/query-string.svg?branch=master)](https://travis-ci.com/Heapy/query-string)
 
 > Parse and stringify URL [query strings](https://en.wikipedia.org/wiki/Query_string)
 
