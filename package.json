@@ -16,9 +16,7 @@
     "test": "tsc test/index.test.ts && node test/index.test.js",
     "build": "tsc index.ts"
   },
-  "files": [
-    "index.js"
-  ],
+  "main": "index.js",
   "keywords": [
     "browser",
     "querystring",
