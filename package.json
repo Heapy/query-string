@@ -13,7 +13,7 @@
     "node": ">=6"
   },
   "scripts": {
-    "test": "tsc index.test.ts && node index.test.js"
+    "test": "tsc test/index.test.ts && node test/index.test.js"
   },
   "files": [
     "index.ts"
@@ -35,5 +35,10 @@
   ],
   "devDependencies": {
     "typescript": "^3.4.1"
+  },
+  "dependencies": {
+    "ts-loader": "^5.3.3",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0"
   }
 }

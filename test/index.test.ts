@@ -1,8 +1,6 @@
-import {extract} from "./index";
-import strictUriEncode from "./strictUriEncode";
-import splitOnFirst from "./splitOnFirst";
+import {_decodeURIComponent, extract, splitOnFirst, strictUriEncode} from "../index";
 import {stringArraysEqual, stringsEqual, stringsNotEqual} from "./helpers";
-import decodeComponent from "./decodeUriComponent";
+import decodeComponent = _decodeURIComponent.decodeComponent;
 
 const decodeComponentTests: {[key: string]: string} = {
     "test": "test",
