@@ -1,0 +1,39 @@
+{
+  "name": "query-string",
+  "version": "1.0.0",
+  "description": "Parse and stringify URL query strings",
+  "license": "Apache",
+  "repository": "Heapy/query-string",
+  "author": {
+    "name": "Ruslan Ibragimov",
+    "email": "ruslan@ibragimov.by",
+    "url": "https://ibragimov.by/"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "scripts": {
+    "test": "tsc index.test.tsc && node index.test.js"
+  },
+  "files": [
+    "index.ts"
+  ],
+  "keywords": [
+    "browser",
+    "querystring",
+    "query",
+    "string",
+    "qs",
+    "param",
+    "parameter",
+    "url",
+    "parse",
+    "stringify",
+    "encode",
+    "decode",
+    "searchparams"
+  ],
+  "devDependencies": {
+    "typescript": "^3.4.1"
+  }
+}
